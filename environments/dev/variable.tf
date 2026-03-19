@@ -1,34 +1,40 @@
-variable "project_id" {
-  description = "The ID of the project"
-  type        = string
+variable "environment" {
+  type    = string
+  default = "dev"
 }
 
 variable "region" {
-  description = "The region to deploy resources"
-  type        = string
-  default     = "us-east-1"
+  type    = string
+  default = "us-east-1"
 }
 
-variable "environment" {
-  description = "The deployment environment"
+variable "account_id" {
   type        = string
-  default     = "dev"
+  description = "AWS account ID"
 }
 
-variable "vpc_cidr" {
-  description = "CIDR block for the VPC"
+variable "ami_id" {
   type        = string
-  default     = "10.0.0.0/16"
+  description = "Amazon Linux 2 AMI ID for the region"
+  default     = "ami-0c02fb55956c7d316"
 }
 
-variable "instance_type" {
-  description = "The type of instance to start"
-  type        = string
-  default     = "t3.micro"
+variable "db_username" {
+  type      = string
+  sensitive = true
 }
 
-variable "tags" {
-  description = "A mapping of tags to assign to the resource"
-  type        = map(string)
-  default     = {}
+variable "db_password" {
+  type      = string
+  sensitive = true
+}
+
+variable "bucket_suffix" {
+  type        = string
+  description = "Unique suffix for S3 bucket name"
+}
+
+variable "alarm_email" {
+  type        = string
+  description = "Email to receive CloudWatch alarm notifications"
 }
