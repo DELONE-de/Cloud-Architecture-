@@ -42,9 +42,6 @@ jobs:
           aws-secret-access-key: ${{ secrets.GITHUBAWS_SECRET_ACCESS_KEY }}
           aws-region: us-east-1
 
-      - name: Terraform Format Check
-        run: terraform fmt -check -recursive
-
       - name: Terraform Init
         run: terraform init
 
@@ -93,8 +90,8 @@ jobs:
       - name: Configure AWS Credentials
         uses: aws-actions/configure-aws-credentials@v4
         with:
-          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
-          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-access-key-id: ${{ secrets.GITHUBAWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.GITHUBAWS_SECRET_ACCESS_KEY }}
           aws-region: us-east-1
 
       - name: Terraform Init
