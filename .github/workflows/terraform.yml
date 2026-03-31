@@ -8,6 +8,7 @@ on:
   pull_request:
     branches:
       - main
+  workflow_dispatch:    # manual trigger for apply
 
 env:
   TF_WORKING_DIR: environments/dev
@@ -15,7 +16,7 @@ env:
 
 jobs:
   # -----------------------------------------------
-  # JOB 1: init, validate, plan — runs automatically
+  # JOB 1: fmt, validate, plan — runs automatically
   # -----------------------------------------------
   terraform-plan:
     name: Terraform Init & Plan
@@ -37,9 +38,12 @@ jobs:
       - name: Configure AWS Credentials
         uses: aws-actions/configure-aws-credentials@v4
         with:
-          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
-          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-access-key-id: ${{ secrets.GITHUBAWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.GITHUBAWS_SECRET_ACCESS_KEY }}
           aws-region: us-east-1
+
+      - name: Terraform Format Check
+        run: terraform fmt -check -recursive
 
       - name: Terraform Init
         run: terraform init
@@ -50,11 +54,11 @@ jobs:
       - name: Terraform Plan
         run: |
           terraform plan \
-            -var="account_id=${{ secrets.AWS_ACCOUNT_ID }}" \
-            -var="db_username=${{ secrets.DB_USERNAME }}" \
-            -var="db_password=${{ secrets.DB_PASSWORD }}" \
-            -var="bucket_suffix=${{ secrets.BUCKET_SUFFIX }}" \
-            -var="alarm_email=${{ secrets.ALARM_EMAIL }}" \
+            -var="account_id=${{ secrets.GITHUBAWS_ACCOUNT_ID }}" \
+            -var="db_username=${{ secrets.GITHUBDB_USERNAME }}" \
+            -var="db_password=${{ secrets.GITHUBDB_PASSWORD }}" \
+            -var="bucket_suffix=${{ secrets.GITHUBBUCKET_SUFFIX }}" \
+            -var="alarm_email=${{ secrets.GITHUBALARM_EMAIL }}" \
             -out=tfplan
 
       - name: Upload Plan Artifact
@@ -65,13 +69,13 @@ jobs:
           retention-days: 5
 
   # -----------------------------------------------
-  # JOB 2: apply — requires manual approval
+  # JOB 2: apply — requires manual approval, main only
   # -----------------------------------------------
   terraform-apply:
     name: Terraform Apply
     runs-on: ubuntu-latest
     needs: terraform-plan
-    environment: production        # <-- manual approval gate set in GitHub repo settings
+    if: github.event_name == 'workflow_dispatch'
 
     defaults:
       run:
